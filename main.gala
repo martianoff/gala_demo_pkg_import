@@ -1,0 +1,15 @@
+package main
+
+import "github.com/martianoff/gala_demo_pkg"
+
+func main() {
+    val sum = demomath.Add(10, 20)
+    val diff = demomath.Subtract(50, 8)
+    val product = demomath.Multiply(6, 7)
+
+    println("10 + 20 = " + sum.ToString())
+    println("50 - 8 = " + diff.ToString())
+    println("6 * 7 = " + product.ToString())
+    println("Max(3, 7) = " + demomath.Max(3, 7).ToString())
+    println("Abs(-42) = " + demomath.Abs(-42).ToString())
+}

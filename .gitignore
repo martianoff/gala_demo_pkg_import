@@ -1,0 +1,11 @@
+# IDE
+.idea/
+
+# Bazel
+bazel-*
+
+# OS
+.DS_Store
+
+# Generated files
+*_gen.go
