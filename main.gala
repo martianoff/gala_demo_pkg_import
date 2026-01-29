@@ -1,15 +1,24 @@
 package main
 
+import "fmt"
 import "github.com/martianoff/gala_demo_pkg"
 
 func main() {
+    // Test math functions
     val sum = demomath.Add(10, 20)
     val diff = demomath.Subtract(50, 8)
     val product = demomath.Multiply(6, 7)
 
-    println("10 + 20 = " + sum.ToString())
-    println("50 - 8 = " + diff.ToString())
-    println("6 * 7 = " + product.ToString())
-    println("Max(3, 7) = " + demomath.Max(3, 7).ToString())
-    println("Abs(-42) = " + demomath.Abs(-42).ToString())
+    fmt.Printf("10 + 20 = %d\n", sum)
+    fmt.Printf("50 - 8 = %d\n", diff)
+    fmt.Printf("6 * 7 = %d\n", product)
+    fmt.Printf("Max(3, 7) = %d\n", demomath.Max(3, 7))
+    fmt.Printf("Abs(-42) = %d\n", demomath.Abs(-42))
+
+    // Test UUID utils (uses Go dependency github.com/google/uuid)
+    val id = demomath.GenerateID()
+    fmt.Printf("Generated UUID: %s\n", id)
+
+    val uuid = demomath.NewUUID()
+    fmt.Printf("UUID object as string: %s\n", demomath.UUIDString(uuid))
 }

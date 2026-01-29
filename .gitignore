@@ -9,3 +9,4 @@ bazel-*
 
 # Generated files
 *_gen.go
+_gala
