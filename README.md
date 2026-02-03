@@ -1,6 +1,6 @@
-# GALA Demo Package Import (Go Modules)
+# GALA Demo Package Import (Standalone)
 
-This example demonstrates how to use GALA with Go modules to import external GALA packages.
+This example demonstrates how to use GALA without Bazel, using `gala build` to compile your project.
 
 ## Prerequisites
 
@@ -13,28 +13,29 @@ This example demonstrates how to use GALA with Go modules to import external GAL
 # 1. Add GALA dependencies
 gala mod add github.com/martianoff/gala_demo_pkg@v0.2.3
 
-# 2. Transpile
-gala transpile -i main.gala -o main_gen.go
+# 2. Add Go dependencies (transitive from GALA package)
+gala mod add github.com/google/uuid@v1.6.0 --go
 
-# 3. Run
-go run main_gen.go
+# 3. Build
+gala build
+
+# 4. Run
+./gala_demo_pkg_import
 ```
 
 ## Project Structure
 
+Your project only needs these files:
+
 ```
 gala_demo_pkg_import/
-├── main.gala          # GALA source code
-├── gala.mod           # GALA dependencies (source of truth)
-├── go.mod             # Auto-managed by transpiler
-├── main_gen.go        # Generated Go code
-└── _gala/             # Embedded GALA stdlib (auto-generated)
-    ├── std/
-    ├── go_interop/
-    ├── collection_immutable/
-    ├── collection_mutable/
-    └── concurrent/
+├── main.gala              # GALA source code
+├── gala.mod               # GALA dependencies (source of truth)
+├── gala.sum               # Dependency checksums
+└── gala_demo_pkg_import   # Built binary (after gala build)
 ```
+
+**No go.mod, no _gala folder, no .gen.go files in your project!**
 
 ## Setup
 
@@ -74,46 +75,63 @@ package main
 
 import "fmt"
 import "github.com/martianoff/gala_demo_pkg"
+import "github.com/google/uuid"
 
 func main() {
     val sum = demomath.Add(10, 20)
     fmt.Printf("10 + 20 = %d\n", sum)
+    fmt.Println("UUID:", uuid.New().String())
 }
 ```
 
-### 4. Transpile
+### 4. Build
 
 ```bash
-gala transpile -i main.gala -o main_gen.go
+# Build with default output name
+gala build
+
+# Build with verbose output
+gala build -v
+
+# Build with custom output name
+gala build -o myapp
 ```
 
-This automatically:
-- Generates `main_gen.go` from your GALA code
-- Extracts the GALA stdlib to `_gala/`
-- Updates `go.mod` with necessary dependencies
-
-### 5. Build and Run
+### 5. Run
 
 ```bash
-go run main_gen.go
-```
-
-Or build a binary:
-
-```bash
-go build -o demo main_gen.go
-./demo
+./gala_demo_pkg_import
+# or
+gala run
 ```
 
 ## How It Works
 
 1. **gala.mod** - Single source of truth for all dependencies
-2. **gala transpile** - Transpiles GALA to Go, manages go.mod automatically
-3. **go build** - Standard Go build process
+2. **gala build** - Transpiles GALA to Go, downloads dependencies, produces binary
+3. **Clean project** - No generated files in your project folder
+
+Behind the scenes:
+- Build workspace at `~/.gala/build/<hash>/` (per-project)
+- Stdlib cached at `~/.gala/stdlib/v<version>/`
+- GALA packages cached at `~/.gala/pkg/mod/`
+- Go packages cached at `~/.gala/go/pkg/mod/`
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `gala build` | Build project to binary |
+| `gala build -v` | Build with verbose output |
+| `gala build -o name` | Build with custom output name |
+| `gala run` | Build and run |
+| `gala run -- args` | Build and run with arguments |
+| `gala clean` | Clean build workspace for this project |
+| `gala clean --all` | Clean all GALA caches |
 
 ## Notes
 
-- The `_gala/` directory contains the embedded stdlib - commit to version control
-- The transpiler auto-manages `go.mod` - no manual editing needed
-- GALA packages are cached in `~/.gala/pkg/mod/`
 - Mark Go dependencies with `// go` comment in gala.mod
+- GALA packages are cached in `~/.gala/pkg/mod/`
+- Go packages are cached in `~/.gala/go/pkg/mod/`
+- Run `gala mod tidy` after changing imports
